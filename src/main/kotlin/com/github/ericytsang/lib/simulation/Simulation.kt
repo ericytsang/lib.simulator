@@ -6,7 +6,7 @@ import java.util.WeakHashMap
 /**
  * Created by surpl on 8/15/2016.
  */
-class Simulation<Renderee:Any> constructor(val renderer:Renderer<Renderee>,looperFactory:Looper.Factory)
+class Simulation<Renderee> constructor(val renderer:Renderer<Renderee>,looperFactory:Looper.Factory)
 {
     private val loopee = object:Loopee
     {
@@ -23,17 +23,20 @@ class Simulation<Renderee:Any> constructor(val renderer:Renderer<Renderee>,loope
         override fun render()
         {
             @Suppress("UNCHECKED_CAST")
-            val renderees = allEntities.mapNotNull()
-            {
-                try
+            val renderees = allEntities
+                .filter()
                 {
-                    it as Renderee
+                    try
+                    {
+                        it as Renderee
+                        true
+                    }
+                    catch (ex:ClassCastException)
+                    {
+                        false
+                    }
                 }
-                catch (ex:ClassCastException)
-                {
-                    null
-                }
-            }
+                .map {it as Renderee}
             renderer.render(renderees)
         }
     }
@@ -127,7 +130,7 @@ class Simulation<Renderee:Any> constructor(val renderer:Renderer<Renderee>,loope
     /**
      * to draw something on the simulation's canvas, implement this interface.
      */
-    interface Entity<Renderee:Any>
+    interface Entity<Renderee>
     {
         fun update(simulation:Simulation<Renderee>)
     }
