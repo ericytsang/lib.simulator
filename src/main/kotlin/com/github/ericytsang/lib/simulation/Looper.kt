@@ -8,17 +8,17 @@ interface Looper
     interface Factory
     {
         fun make(loopee:Loopee):Looper
-    }
 
-    companion object
-    {
-        fun Factory(_make:(Loopee)->Looper):Looper.Factory
+        companion object
         {
-            return object:Looper.Factory
+            fun new(_make:(Loopee)->Looper):Looper.Factory
             {
-                override fun make(loopee:Loopee):Looper
+                return object:Looper.Factory
                 {
-                    return _make(loopee)
+                    override fun make(loopee:Loopee):Looper
+                    {
+                        return _make(loopee)
+                    }
                 }
             }
         }
