@@ -8,38 +8,7 @@ import java.util.WeakHashMap
  */
 class Simulation<Renderee> constructor(val renderer:Renderer<Renderee>,looperFactory:Looper.Factory)
 {
-    private val loopee = object:Loopee
-    {
-        override fun processInput()
-        {
-            // todo: implement
-        }
-
-        override fun update()
-        {
-            allEntities.forEach {it.update(this@Simulation)}
-        }
-
-        override fun render()
-        {
-            @Suppress("UNCHECKED_CAST")
-            val renderees = allEntities
-                .filter()
-                {
-                    try
-                    {
-                        it as Renderee
-                        true
-                    }
-                    catch (ex:ClassCastException)
-                    {
-                        false
-                    }
-                }
-                .map {it as Renderee}
-            renderer.render(renderees)
-        }
-    }
+    private val loopee = MyLoopee()
 
     val looper:Looper = looperFactory.make(loopee).apply {start()}
 
@@ -144,6 +113,39 @@ class Simulation<Renderee> constructor(val renderer:Renderer<Renderee>,looperFac
             {
                 return instances.getOrPut(x to y,{Cell(x,y)})
             }
+        }
+    }
+
+    private inner class MyLoopee:Loopee
+    {
+        override fun processInput()
+        {
+            // todo: implement
+        }
+
+        override fun update()
+        {
+            allEntities.forEach {it.update(this@Simulation)}
+        }
+
+        override fun render()
+        {
+            @Suppress("UNCHECKED_CAST")
+            val renderees = allEntities
+                .filter()
+                {
+                    try
+                    {
+                        it as Renderee
+                        true
+                    }
+                    catch (ex:ClassCastException)
+                    {
+                        false
+                    }
+                }
+                .map {it as Renderee}
+            renderer.render(renderees)
         }
     }
 }
