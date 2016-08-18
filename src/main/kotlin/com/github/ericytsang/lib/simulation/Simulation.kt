@@ -60,7 +60,7 @@ class Simulation<Renderee> constructor(val renderer:Renderer<Renderee>,looperFac
         listeners += {
             change ->
 
-            entityToCellsMap as ObservableMap
+            entityToCellsMap as ObservableMap<Entity<Renderee>,Set<Cell>>
 
             val cell = change.key
 
@@ -101,7 +101,7 @@ class Simulation<Renderee> constructor(val renderer:Renderer<Renderee>,looperFac
         listeners += {
             change ->
 
-            cellToEntitiesMap as ObservableMap
+            cellToEntitiesMap as ObservableMap<Cell,Set<Entity<Renderee>>>
 
             val entity = change.key
 
