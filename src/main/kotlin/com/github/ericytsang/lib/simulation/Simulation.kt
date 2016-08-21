@@ -1,5 +1,6 @@
 package com.github.ericytsang.lib.simulation
 
+import com.github.ericytsang.lib.collections.KeyedChange
 import com.github.ericytsang.lib.collections.ObservableMap
 import java.util.WeakHashMap
 
@@ -26,30 +27,28 @@ class Simulation constructor(val renderer:Renderer,looperFactory:Looper.Factory)
      */
     val cellToEntitiesMap:MutableMap<Cell,Set<Entity>> = ObservableMap(mutableMapOf<Cell,Set<Entity>>()).apply()
     {
-        listeners += {
+        observers += KeyedChange.Observer.new() {
             change ->
 
             entityToCellsMap as ObservableMap<Entity,Set<Cell>>
 
             val cell = change.key
 
-            when
+            if (change.removed != null)
             {
-                change.wasAdded ->
+                change.removed!!.forEach()
                 {
-                    change.valueAdded!!.forEach()
-                    {
-                        entity ->
-                        entityToCellsMap.wrapee[entity] = entityToCellsMap[entity]?.plus(cell) ?: setOf(cell)
-                    }
+                    entity ->
+                    entityToCellsMap.wrapee[entity] = entityToCellsMap[entity]?.minus(cell) ?: emptySet()
                 }
-                change.wasRemoved ->
+            }
+
+            if (change.added != null)
+            {
+                change.added!!.forEach()
                 {
-                    change.valueRemoved!!.forEach()
-                    {
-                        entity ->
-                        entityToCellsMap.wrapee[entity] = entityToCellsMap[entity]?.minus(cell) ?: emptySet()
-                    }
+                    entity ->
+                    entityToCellsMap.wrapee[entity] = entityToCellsMap[entity]?.plus(cell) ?: setOf(cell)
                 }
             }
         }
@@ -67,30 +66,29 @@ class Simulation constructor(val renderer:Renderer,looperFactory:Looper.Factory)
      */
     val entityToCellsMap:MutableMap<Entity,Set<Cell>> = ObservableMap(mutableMapOf<Entity,Set<Cell>>()).apply()
     {
-        listeners += {
+        observers += KeyedChange.Observer.new()
+        {
             change ->
 
             cellToEntitiesMap as ObservableMap<Cell,Set<Entity>>
 
             val entity = change.key
 
-            when
+            if (change.removed != null)
             {
-                change.wasAdded ->
+                change.removed!!.forEach()
                 {
-                    change.valueAdded!!.forEach()
-                    {
-                        cell ->
-                        cellToEntitiesMap.wrapee[cell] = cellToEntitiesMap[cell]?.plus(entity) ?: setOf(entity)
-                    }
+                    cell ->
+                    cellToEntitiesMap.wrapee[cell] = cellToEntitiesMap[cell]?.minus(entity) ?: emptySet()
                 }
-                change.wasRemoved ->
+            }
+
+            if (change.added != null)
+            {
+                change.added!!.forEach()
                 {
-                    change.valueRemoved!!.forEach()
-                    {
-                        cell ->
-                        cellToEntitiesMap.wrapee[cell] = cellToEntitiesMap[cell]?.minus(entity) ?: emptySet()
-                    }
+                    cell ->
+                    cellToEntitiesMap.wrapee[cell] = cellToEntitiesMap[cell]?.plus(entity) ?: setOf(entity)
                 }
             }
         }
