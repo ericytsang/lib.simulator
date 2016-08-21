@@ -7,7 +7,7 @@ import javafx.scene.transform.Affine
 import javafx.scene.transform.Transform
 import java.util.concurrent.CountDownLatch
 
-class CanvasRenderer(val canvas:Canvas,_cellLength:Double):Renderer<CanvasRenderer.Renderee>
+class CanvasRenderer(val canvas:Canvas,_cellLength:Double):Renderer
 {
     /**
      * last transform applied to the [GraphicsContext] of [canvas] in while
@@ -39,7 +39,7 @@ class CanvasRenderer(val canvas:Canvas,_cellLength:Double):Renderer<CanvasRender
         this.cellLength = _cellLength
     }
 
-    override fun render(renderees:Iterable<Renderee>)
+    override fun render(renderees:Iterable<*>)
     {
         val releasedOnRenderFinished = CountDownLatch(1)
         Platform.runLater()
@@ -50,22 +50,26 @@ class CanvasRenderer(val canvas:Canvas,_cellLength:Double):Renderer<CanvasRender
             //context.transform = viewTransform.clone()
 
             // render every entity
-            renderees.sortedBy {it.renderLayer}.forEach()
-            {
-                context.save()
-
-                // apply entity specific transformations, then render the entity
-                context.transform = context.transform.apply()
+            renderees
+                .filter {it is CanvasRenderer.Renderee}
+                .map {it as CanvasRenderer.Renderee}
+                .sortedBy {it.renderLayer}
+                .forEach()
                 {
-                    appendTranslation(canvas.width/2,canvas.height/2)
-                    append(viewTransform)
-                    appendTranslation(cellLength*it.position.x,cellLength*it.position.y)
-                    appendRotation(it.direction)
-                }
-                it.render(context,viewTransform.clone(),cellLength)
+                    context.save()
 
-                context.restore()
-            }
+                    // apply entity specific transformations, then render the entity
+                    context.transform = context.transform.apply()
+                    {
+                        appendTranslation(canvas.width/2,canvas.height/2)
+                        append(viewTransform)
+                        appendTranslation(cellLength*it.position.x,cellLength*it.position.y)
+                        appendRotation(it.direction)
+                    }
+                    it.render(context,viewTransform.clone(),cellLength)
+
+                    context.restore()
+                }
 
             // release latch indicating that rendering has finished
             releasedOnRenderFinished.countDown()

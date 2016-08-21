@@ -6,13 +6,13 @@ import java.util.WeakHashMap
 /**
  * Created by surpl on 8/15/2016.
  */
-class Simulation<Renderee> constructor(val renderer:Renderer<Renderee>,looperFactory:Looper.Factory)
+class Simulation constructor(val renderer:Renderer,looperFactory:Looper.Factory)
 {
     private val loopee = MyLoopee()
 
     val looper:Looper = looperFactory.make(loopee).apply {start()}
 
-    val allEntities:Set<Entity<Renderee>> get()
+    val allEntities:Set<Entity> get()
     {
         return entityToCellsMap.keys
     }
@@ -24,12 +24,12 @@ class Simulation<Renderee> constructor(val renderer:Renderer<Renderee>,looperFac
      *
      * meant to be used for looking up entities by the cells.
      */
-    val cellToEntitiesMap:MutableMap<Cell,Set<Entity<Renderee>>> = ObservableMap(mutableMapOf<Cell,Set<Entity<Renderee>>>()).apply()
+    val cellToEntitiesMap:MutableMap<Cell,Set<Entity>> = ObservableMap(mutableMapOf<Cell,Set<Entity>>()).apply()
     {
         listeners += {
             change ->
 
-            entityToCellsMap as ObservableMap<Entity<Renderee>,Set<Cell>>
+            entityToCellsMap as ObservableMap<Entity,Set<Cell>>
 
             val cell = change.key
 
@@ -65,12 +65,12 @@ class Simulation<Renderee> constructor(val renderer:Renderer<Renderee>,looperFac
      *
      * all entities registered in this map will be processed in the [looper]
      */
-    val entityToCellsMap:MutableMap<Entity<Renderee>,Set<Cell>> = ObservableMap(mutableMapOf<Entity<Renderee>,Set<Cell>>()).apply()
+    val entityToCellsMap:MutableMap<Entity,Set<Cell>> = ObservableMap(mutableMapOf<Entity,Set<Cell>>()).apply()
     {
         listeners += {
             change ->
 
-            cellToEntitiesMap as ObservableMap<Cell,Set<Entity<Renderee>>>
+            cellToEntitiesMap as ObservableMap<Cell,Set<Entity>>
 
             val entity = change.key
 
@@ -99,9 +99,9 @@ class Simulation<Renderee> constructor(val renderer:Renderer<Renderee>,looperFac
     /**
      * to draw something on the simulation's canvas, implement this interface.
      */
-    interface Entity<Renderee>
+    interface Entity
     {
-        fun update(simulation:Simulation<Renderee>)
+        fun update(simulation:Simulation)
     }
 
     data class Cell private constructor(val x:Int,val y:Int)
@@ -130,22 +130,7 @@ class Simulation<Renderee> constructor(val renderer:Renderer<Renderee>,looperFac
 
         override fun render()
         {
-            @Suppress("UNCHECKED_CAST")
-            val renderees = allEntities
-                .filter()
-                {
-                    try
-                    {
-                        it as Renderee
-                        true
-                    }
-                    catch (ex:ClassCastException)
-                    {
-                        false
-                    }
-                }
-                .map {it as Renderee}
-            renderer.render(renderees)
+            renderer.render(allEntities)
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.github.ericytsang.lib.simulation
 
-interface Renderer<in Renderee>
+interface Renderer
 {
-    fun render(renderees:Iterable<Renderee>)
+    fun render(renderee:Iterable<*>)
 }
