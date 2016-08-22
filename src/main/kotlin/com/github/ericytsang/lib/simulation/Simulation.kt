@@ -102,7 +102,18 @@ class Simulation constructor(val renderer:Renderer,looperFactory:Looper.Factory)
         fun update(simulation:Simulation)
     }
 
-    data class Cell(val x:Int,val y:Int)
+    data class Cell private constructor(val x:Int,val y:Int)
+    {
+        companion object
+        {
+            private val existingInstances = WeakHashMap<Cell,Cell>()
+            fun getElseMake(x:Int,y:Int):Cell
+            {
+                val key = Cell(x,y)
+                return existingInstances.getOrPut(key,{key})
+            }
+        }
+    }
 
     private inner class MyLoopee:Loopee
     {
