@@ -25,12 +25,10 @@ class Simulation constructor(val renderer:Renderer,looperFactory:Looper.Factory)
      *
      * meant to be used for looking up entities by the cells.
      */
-    val cellToEntitiesMap:MutableMap<Cell,Set<Entity>> = ObservableMap(mutableMapOf<Cell,Set<Entity>>()).apply()
+    val cellToEntitiesMap:ObservableMap<Cell,Set<Entity>> = ObservableMap(mutableMapOf<Cell,Set<Entity>>()).apply()
     {
         observers += KeyedChange.Observer.new() {
             change ->
-
-            entityToCellsMap as ObservableMap<Entity,Set<Cell>>
 
             val cell = change.key
 
@@ -64,13 +62,11 @@ class Simulation constructor(val renderer:Renderer,looperFactory:Looper.Factory)
      *
      * all entities registered in this map will be processed in the [looper]
      */
-    val entityToCellsMap:MutableMap<Entity,Set<Cell>> = ObservableMap(mutableMapOf<Entity,Set<Cell>>()).apply()
+    val entityToCellsMap:ObservableMap<Entity,Set<Cell>> = ObservableMap(mutableMapOf<Entity,Set<Cell>>()).apply()
     {
         observers += KeyedChange.Observer.new()
         {
             change ->
-
-            cellToEntitiesMap as ObservableMap<Cell,Set<Entity>>
 
             val entity = change.key
 
