@@ -1,7 +1,7 @@
 package com.github.ericytsang.lib.simulation
 
-import com.github.ericytsang.lib.collections.KeyedChange
-import com.github.ericytsang.lib.collections.ObservableMap
+import com.github.ericytsang.lib.observe.KeyedChange
+import com.github.ericytsang.lib.observe.ObservableMap
 import java.util.WeakHashMap
 
 /**
